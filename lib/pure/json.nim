@@ -152,7 +152,7 @@ runnableExamples:
   doAssert $(%* Foo()) == """{"a1":0,"a2":0,"a0":0,"a3":0,"a4":0}"""
 
 import
-  hashes, tables, strutils, lexbase, streams, macros, parsejson
+  hashes, tables, strutils, lexbase, streams, macros, parsejson, typetraits
 
 import options # xxx remove this dependency using same approach as https://github.com/nim-lang/Nim/pull/14563
 import std/private/since
@@ -358,10 +358,14 @@ proc `[]=`*(obj: JsonNode, key: string, val: JsonNode) {.inline.} =
   assert(obj.kind == JObject)
   obj.fields[key] = val
 
-proc `%`*[T: object](o: T): JsonNode =
+proc `%`*[T: object | tuple](o: T): JsonNode =
   ## Construct JsonNode from tuples and objects.
-  result = newJObject()
-  for k, v in o.fieldPairs: result[k] = %v
+  when T is object or T.isNamedTuple:
+    result = newJObject()
+    for k, v in o.fieldPairs: result[k] = %v
+  else:
+    result = newJArray()
+    for _, v in o.fieldPairs: result.add %v
 
 proc `%`*(o: ref object): JsonNode =
   ## Generic constructor for JSON data. Creates a new `JObject JsonNode`
