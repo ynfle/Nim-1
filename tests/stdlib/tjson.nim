@@ -206,6 +206,17 @@ block:
       res.add " "
     doAssert res == fragments
 
+# Test json encoding for  tuples, named and regular
+block:
+  type
+    nameTuple = tuple
+      a: int
+      b: string
+
+  var n: nameTuple = (a: 42, b: "tuple json")
+
+  doAssert(%n == %{"a": 42, "b": "tuple json"})
+  doAssert(%("3", 42, 34.0, true) == %["3", 42, 34.0, true])
 
 # test isRefSkipDistinct
 type
