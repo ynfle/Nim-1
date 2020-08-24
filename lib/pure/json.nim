@@ -360,7 +360,7 @@ proc `[]=`*(obj: JsonNode, key: string, val: JsonNode) {.inline.} =
 
 proc `%`*[T: object | tuple](o: T): JsonNode =
   ## Construct JsonNode from tuples and objects.
-  when T is object or T.isNamedTuple:
+  when T is object or isNamedTuple(T):
     result = newJObject()
     for k, v in o.fieldPairs: result[k] = %v
   else:
